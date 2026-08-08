@@ -1,5 +1,5 @@
 E-Commerce Sales & Logistics Analytics Data Pipeline
-This repository contains an end-to-end Data Engineering pipeline. The project transforms raw retail transactional records into a structured, analytical **Star Schema** following the **Medallion Architecture (Bronze, Silver and Gold)
+This repository contains an end-to-end Data Engineering pipeline. The project transforms raw retail transactional records into a structured, analytical Star Schema following the Medallion Architecture (Bronze, Silver and Gold)
 
 The pipeline processes multi-channel e-commerce records tracking customer demographics, financial sales performance, discount percentages, and supply chain logistics latency.
 

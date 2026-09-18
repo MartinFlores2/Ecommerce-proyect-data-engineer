@@ -1,4 +1,4 @@
-Ese borrador que armaste para el README.md está excelente, pero para que coincida exactamente al 100% con la estructura definitiva que dejamos en tu espacio de trabajo de Databricks, tenemos que hacer dos pequeños ajustes clave:Estructura de Carpetas (📂 Repository Structure): Tu proyecto real ahora incluye la carpeta 01_EDA (con sus 3 scripts simétricos de calidad) y la carpeta VIEWS (donde quedaron las vistas de consumo de BI).  Ubicación de Scripts: La carpeta ETL/ agrupa las fases 01_bronze, 02_silver y 03_gold.  README.md Definitivo (Listo para copiar y pegar)Markdown# 🛒 E-Commerce End-to-End Data Pipeline & Analytics
+🛒 E-Commerce End-to-End Data Pipeline & Analytics
 
 **Data Engineering Project | Built with Databricks, Spark SQL, Delta Lake & Medallion Architecture**
 
@@ -23,7 +23,6 @@ The company operates an e-commerce platform that streams transactional sales and
 
 The project leverages the Medallion Architecture pattern on Databricks to govern data progression through distinct layers:
 
-```text
 [ E-Commerce Raw CSV / Data Sources ]
                 │
                 ▼
@@ -52,7 +51,19 @@ The project leverages the Medallion Architecture pattern on Databricks to govern
                 │
                 ▼
   [ Databricks Dashboards / BI Analytics ]
-🧪 Data Quality & Governance FrameworkTo guarantee enterprise-grade data integrity before serving business metrics, the pipeline executes automated quality validation checks across all layers (EDA):Volumetric & Revenue Reconciliation: Confirmed 100% data preservation between Silver (cleansed_sales) and Gold (fact_sales) with 0 record loss (5,000/5,000 records) and exact revenue match ($5,109,775.74).Primary Key Uniqueness: Verified 0 duplicate surrogate keys across all dimension tables (dim_customers, dim_products, dim_date).Referential Integrity: Enforced foreign key checks via LEFT JOIN validations to ensure 0 orphan facts exist in fact_sales.Null Key Checks: Verified 0 NULL values across dimensional foreign keys.🛠️ Stack & Core CompetenciesPlatform & Compute: Databricks Lakehouse EnvironmentData Processing: Spark SQL & PySparkStorage & Format: Delta Lake (ACID Transactions, Time Travel, Idempotent Processing)Data Governance: Unity Catalog / Schema Separation (ecommerce_bronze, ecommerce_silver, ecommerce_gold, ecommerce_views)Data Modeling: Kimball Methodology (Star Schema: fact_sales, dim_customers, dim_products, dim_date)Version Control: Git & GitHub📂 Repository StructurePlaintext.
+
+
+🧪 Data Quality & Governance FrameworkTo guarantee enterprise-grade data integrity before serving business metrics, the pipeline executes automated quality validation checks across all layers (EDA):
+Volumetric & Revenue Reconciliation: Confirmed 100% data preservation between Silver (cleansed_sales) and Gold (fact_sales) with 0 record loss (5,000/5,000 records) and exact revenue match ($5,109,775.74).
+Primary Key Uniqueness: Verified 0 duplicate surrogate keys across all dimension tables (dim_customers, dim_products, dim_date).Referential Integrity: Enforced foreign key checks via LEFT JOIN validations to ensure 0 orphan facts exist in fact_sales.
+Null Key Checks: Verified 0 NULL values across dimensional foreign keys.
+
+🛠️ Stack & Core CompetenciesPlatform & Compute: Databricks Lakehouse EnvironmentData Processing: Spark SQL & PySparkStorage & Format: Delta Lake (ACID Transactions, Time Travel, Idempotent Processing)Data Governance: Unity Catalog / Schema Separation (ecommerce_bronze, ecommerce_silver, ecommerce_gold, ecommerce_views)
+
+Data Modeling: Kimball Methodology (Star Schema: fact_sales, dim_customers, dim_products, dim_date)
+
+Version Control: Git & GitHub📂 
+Repository StructurePlaintext.
 ├── 00_setup_SRC/
 │   └── ecommerce_sales_analytics_5000.csv    # Source raw transactional dataset
 ├── 01_DDL/
@@ -71,4 +82,9 @@ The project leverages the Medallion Architecture pattern on Databricks to govern
 ├── VIEWS/
 │   └── 01_create_business_views.sql         # Business views for BI reporting & analytics
 └── README.md                                # Main project documentation
-⚙️ Key Technical HighlightsGuaranteed Idempotency: Leveraged Delta Lake table overwrites and transactional guarantees to ensure pipeline reruns produce consistent states without duplication.Precision Financial Casting: Enforced DECIMAL(10,2) casting across all financial metrics (unit_price, revenue) to eliminate floating-point arithmetic errors.Data Integrity: Used MD5 deterministic surrogate hashing to build unique identifiers across dimensional entities.Dynamic Time Dimension: Automated the generation of dim_date spanning the full date range of transactions, enriched with calendar attributes (year, month_name, quarter, day_of_week).👤 AuthorMartín Flores — Data Engineer📧 Email: martinnfloress53@gmail.com🔗 LinkedIn: linkedin.com/in/victor-martin-flores-8866522b2
+
+⚙️ Key Technical HighlightsGuaranteed Idempotency: Leveraged Delta Lake table overwrites and transactional guarantees to ensure pipeline reruns produce consistent states without duplication.Precision Financial Casting: Enforced DECIMAL(10,2) casting across all financial metrics (unit_price, revenue) to eliminate floating-point arithmetic errors.Data Integrity: Used MD5 deterministic surrogate hashing to build unique identifiers across dimensional entities.Dynamic Time Dimension: Automated the generation of dim_date spanning the full date range of transactions, enriched with calendar attributes (year, month_name, quarter, day_of_week).
+
+👤 AuthorMartín Flores — Data Engineer
+📧 Email: martinnfloress53@gmail.com
+🔗 LinkedIn: linkedin.com/in/victor-martin-flores-8866522b2

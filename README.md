@@ -23,6 +23,7 @@ The company operates an e-commerce platform that streams transactional sales and
 
 The project leverages the Medallion Architecture pattern on Databricks to govern data progression through distinct layers:
 
+
 [ E-Commerce Raw CSV / Data Sources ]
                 │
                 ▼
@@ -63,7 +64,7 @@ Null Key Checks: Verified 0 NULL values across dimensional foreign keys.
 Data Modeling: Kimball Methodology (Star Schema: fact_sales, dim_customers, dim_products, dim_date)
 
 Version Control: Git & GitHub📂 
-Repository StructurePlaintext.
+
 ├── 00_setup_SRC/
 │   └── ecommerce_sales_analytics_5000.csv    # Source raw transactional dataset
 ├── 01_DDL/
@@ -81,7 +82,7 @@ Repository StructurePlaintext.
 │       └── 01_build_gold_layer.sql          # Star Schema creation (Dimensions & Fact Sales)
 ├── VIEWS/
 │   └── 01_create_business_views.sql         # Business views for BI reporting & analytics
-└── README.md                                # Main project documentation
+└── README.md
 
 ⚙️ Key Technical HighlightsGuaranteed Idempotency: Leveraged Delta Lake table overwrites and transactional guarantees to ensure pipeline reruns produce consistent states without duplication.Precision Financial Casting: Enforced DECIMAL(10,2) casting across all financial metrics (unit_price, revenue) to eliminate floating-point arithmetic errors.Data Integrity: Used MD5 deterministic surrogate hashing to build unique identifiers across dimensional entities.Dynamic Time Dimension: Automated the generation of dim_date spanning the full date range of transactions, enriched with calendar attributes (year, month_name, quarter, day_of_week).
 

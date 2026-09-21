@@ -16,6 +16,22 @@ The company operates an e-commerce platform that streams transactional sales and
 
 ---
 
+## 📊 Analytical Dashboard & Business Intelligence
+
+The Gold layer and business views (`ecommerce_views`) power an interactive executive dashboard designed to monitor sales performance and drive data-driven decisions:
+
+### **Key Performance Indicators (KPIs):**
+* **Total Revenue & Growth:** Real-time tracking of financial performance across product categories and regions.
+* **Top-Performing Categories:** Identification of highest-grossing product lines (e.g., Electronics, Home, Apparel).
+* **Regional & Customer Insights:** Breakdown of purchasing behaviors and customer ratings by geographical region.
+
+### **Core Visualizations:**
+* **Monthly Sales Trends:** Time-series analysis tracking seasonal revenue patterns and sales velocity.
+* **Category Performance Breakdown:** Comparative view of sales volume, discounts, and margins per product category.
+* **Regional Distribution Map:** Executive breakdown of revenue contribution and customer acquisition metrics segmented by region.
+
+---
+
 ## 🏗️ Data Pipeline Architecture (Medallion Pattern)
 
 The project leverages the Medallion Architecture pattern on Databricks to govern data progression through distinct modular layers:

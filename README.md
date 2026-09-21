@@ -74,7 +74,8 @@ ecommerce-project-data-engineer/
 
 ---
 
-##🧪 Data Quality & Governance Framework
+## 🧪 Data Quality & Governance Framework
+
 To guarantee enterprise-grade data integrity before serving business metrics, the pipeline executes automated quality validations:
 
 Volumetric & Revenue Reconciliation: Confirmed 100% data preservation between Silver (cleansed_sales) and Gold (fact_sales) with 0 record loss (5,000/5,000 records) and exact revenue match ($5,109,775.74).
@@ -85,7 +86,8 @@ Referential & Uniqueness Integrity: Verified primary key uniqueness and eliminat
 
 ---
 
-##🛠️ Stack & Core Competencies
+## 🛠️ Stack & Core Competencies
+ 
 Platform & Compute: Databricks Lakehouse Environment
 
 Data Processing: Spark SQL & PySpark
@@ -100,8 +102,8 @@ Version Control: Git & GitHub
 
 ---
 
-##👤 Author: Martín Flores — Data Engineer
+## 👤 Author: Martín Flores — Data Engineer
 
-##📧 Email: martinnfloress53@gmail.com
+## 📧 Email: martinnfloress53@gmail.com
 
-##🔗 LinkedIn: linkedin.com/in/victor-martin-flores-8866522b2
+## 🔗 LinkedIn: linkedin.com/in/victor-martin-flores-8866522b2

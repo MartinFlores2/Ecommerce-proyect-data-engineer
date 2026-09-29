@@ -1,0 +1,1739 @@
+{
+  "datasets": [
+    {
+      "name": "quality_overview",
+      "displayName": "Resumen de Calidad Bronze vs Silver",
+      "queryLines": [
+        "WITH bronze AS (\n",
+        "  SELECT\n",
+        "    COUNT(*) AS total_rows,\n",
+        "    COUNT(DISTINCT order_id) AS unique_orders,\n",
+        "    COUNT(*) - COUNT(DISTINCT order_id) AS duplicates\n",
+        "  FROM\n",
+        "    workspace.ecommerce_bronze.raw_sales_analytics\n",
+        "),\n",
+        "silver AS (\n",
+        "  SELECT\n",
+        "    COUNT(*) AS total_rows,\n",
+        "    COUNT(DISTINCT order_id) AS unique_orders,\n",
+        "    COUNT(*) - COUNT(DISTINCT order_id) AS duplicates\n",
+        "  FROM\n",
+        "    workspace.ecommerce_silver.cleansed_sales\n",
+        ")\n",
+        "SELECT\n",
+        "  b.total_rows AS bronze_total,\n",
+        "  s.total_rows AS silver_total,\n",
+        "  b.total_rows - s.total_rows AS rows_removed,\n",
+        "  b.duplicates AS bronze_duplicates,\n",
+        "  s.duplicates AS silver_duplicates,\n",
+        "  ROUND(b.duplicates * 100.0 / b.total_rows, 2) AS duplicate_pct,\n",
+        "  ROUND((b.total_rows - s.total_rows) * 100.0 / b.total_rows, 2) AS removed_pct,\n",
+        "  ROUND(s.total_rows * 100.0 / b.total_rows, 2) AS retention_pct\n",
+        "FROM\n",
+        "  bronze b CROSS JOIN silver s"
+      ]
+    },
+    {
+      "name": "nulls_comparison",
+      "displayName": "Nulos por Columna Bronze vs Silver",
+      "queryLines": [
+        "WITH bronze_agg AS (\n",
+        "  SELECT\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_id IS NULL\n",
+        "          OR TRIM(order_id) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_order_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_id IS NULL\n",
+        "          OR TRIM(customer_id) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_customer_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_date IS NULL\n",
+        "          OR TRIM(order_date) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_order_date,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          product_category IS NULL\n",
+        "          OR TRIM(product_category) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_product_category,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          region IS NULL\n",
+        "          OR TRIM(region) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_region,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          payment_method IS NULL\n",
+        "          OR TRIM(payment_method) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_payment_method,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          quantity IS NULL\n",
+        "          OR TRIM(quantity) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_quantity,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          unit_price IS NULL\n",
+        "          OR TRIM(unit_price) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_unit_price,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          discount IS NULL\n",
+        "          OR TRIM(discount) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_discount,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          delivery_days IS NULL\n",
+        "          OR TRIM(delivery_days) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_delivery_days,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_rating IS NULL\n",
+        "          OR TRIM(customer_rating) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_customer_rating,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          revenue IS NULL\n",
+        "          OR TRIM(revenue) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS n_revenue,\n",
+        "    COUNT(*) AS total\n",
+        "  FROM\n",
+        "    workspace.ecommerce_bronze.raw_sales_analytics\n",
+        "),\n",
+        "silver_agg AS (\n",
+        "  SELECT\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN order_id IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_order_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN customer_id IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_customer_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN order_date IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_order_date,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN product_category IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_product_category,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN region IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_region,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN payment_method IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_payment_method,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN quantity IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_quantity,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN unit_price IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_unit_price,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN discount IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_discount,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN delivery_days IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_delivery_days,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN customer_rating IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_customer_rating,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN revenue IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS n_revenue,\n",
+        "    COUNT(*) AS total\n",
+        "  FROM\n",
+        "    workspace.ecommerce_silver.cleansed_sales\n",
+        "),\n",
+        "combined_long AS (\n",
+        "  SELECT\n",
+        "    stack(\n",
+        "      12,\n",
+        "      'order_id',\n",
+        "      n_order_id,\n",
+        "      'customer_id',\n",
+        "      n_customer_id,\n",
+        "      'order_date',\n",
+        "      n_order_date,\n",
+        "      'product_category',\n",
+        "      n_product_category,\n",
+        "      'region',\n",
+        "      n_region,\n",
+        "      'payment_method',\n",
+        "      n_payment_method,\n",
+        "      'quantity',\n",
+        "      n_quantity,\n",
+        "      'unit_price',\n",
+        "      n_unit_price,\n",
+        "      'discount',\n",
+        "      n_discount,\n",
+        "      'delivery_days',\n",
+        "      n_delivery_days,\n",
+        "      'customer_rating',\n",
+        "      n_customer_rating,\n",
+        "      'revenue',\n",
+        "      n_revenue\n",
+        "    ) AS (column_name, null_count),\n",
+        "    total AS total_rows,\n",
+        "    'Bronze' AS layer\n",
+        "  FROM\n",
+        "    bronze_agg\n",
+        "  UNION ALL\n",
+        "  SELECT\n",
+        "    stack(\n",
+        "      12,\n",
+        "      'order_id',\n",
+        "      n_order_id,\n",
+        "      'customer_id',\n",
+        "      n_customer_id,\n",
+        "      'order_date',\n",
+        "      n_order_date,\n",
+        "      'product_category',\n",
+        "      n_product_category,\n",
+        "      'region',\n",
+        "      n_region,\n",
+        "      'payment_method',\n",
+        "      n_payment_method,\n",
+        "      'quantity',\n",
+        "      n_quantity,\n",
+        "      'unit_price',\n",
+        "      n_unit_price,\n",
+        "      'discount',\n",
+        "      n_discount,\n",
+        "      'delivery_days',\n",
+        "      n_delivery_days,\n",
+        "      'customer_rating',\n",
+        "      n_customer_rating,\n",
+        "      'revenue',\n",
+        "      n_revenue\n",
+        "    ) AS (column_name, null_count),\n",
+        "    total AS total_rows,\n",
+        "    'Silver' AS layer\n",
+        "  FROM\n",
+        "    silver_agg\n",
+        ")\n",
+        "SELECT\n",
+        "  column_name,\n",
+        "  layer,\n",
+        "  null_count,\n",
+        "  total_rows,\n",
+        "  ROUND(null_count * 100.0 / total_rows, 2) AS null_pct\n",
+        "FROM\n",
+        "  combined_long\n",
+        "ORDER BY\n",
+        "  column_name,\n",
+        "  layer"
+      ]
+    },
+    {
+      "name": "column_quality_detail",
+      "displayName": "Detalle de Calidad por Columna",
+      "queryLines": [
+        "WITH bronze_agg AS (\n",
+        "  SELECT\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_id IS NULL\n",
+        "          OR TRIM(order_id) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_order_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_id IS NULL\n",
+        "          OR TRIM(customer_id) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_customer_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_date IS NULL\n",
+        "          OR TRIM(order_date) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_order_date,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          product_category IS NULL\n",
+        "          OR TRIM(product_category) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_product_category,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          region IS NULL\n",
+        "          OR TRIM(region) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_region,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          payment_method IS NULL\n",
+        "          OR TRIM(payment_method) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_payment_method,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          quantity IS NULL\n",
+        "          OR TRIM(quantity) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_quantity,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          unit_price IS NULL\n",
+        "          OR TRIM(unit_price) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_unit_price,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          discount IS NULL\n",
+        "          OR TRIM(discount) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_discount,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          delivery_days IS NULL\n",
+        "          OR TRIM(delivery_days) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_delivery_days,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_rating IS NULL\n",
+        "          OR TRIM(customer_rating) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_customer_rating,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          revenue IS NULL\n",
+        "          OR TRIM(revenue) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS b_revenue,\n",
+        "    COUNT(*) AS b_total\n",
+        "  FROM\n",
+        "    workspace.ecommerce_bronze.raw_sales_analytics\n",
+        "),\n",
+        "silver_agg AS (\n",
+        "  SELECT\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN order_id IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_order_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN customer_id IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_customer_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN order_date IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_order_date,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN product_category IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_product_category,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN region IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_region,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN payment_method IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_payment_method,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN quantity IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_quantity,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN unit_price IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_unit_price,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN discount IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_discount,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN delivery_days IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_delivery_days,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN customer_rating IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_customer_rating,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN revenue IS NULL THEN 1\n",
+        "      END\n",
+        "    ) AS s_revenue,\n",
+        "    COUNT(*) AS s_total\n",
+        "  FROM\n",
+        "    workspace.ecommerce_silver.cleansed_sales\n",
+        "),\n",
+        "combined AS (\n",
+        "  SELECT\n",
+        "    *\n",
+        "  FROM\n",
+        "    bronze_agg CROSS JOIN silver_agg\n",
+        ")\n",
+        "SELECT\n",
+        "  column_name,\n",
+        "  bronze_type,\n",
+        "  silver_type,\n",
+        "  bronze_nulls,\n",
+        "  silver_nulls,\n",
+        "  bronze_total,\n",
+        "  silver_total,\n",
+        "  ROUND((1 - bronze_nulls * 1.0 / bronze_total) * 100, 2) AS bronze_completeness,\n",
+        "  ROUND((1 - silver_nulls * 1.0 / silver_total) * 100, 2) AS silver_completeness,\n",
+        "  transformation\n",
+        "FROM\n",
+        "  (\n",
+        "    SELECT\n",
+        "      stack(\n",
+        "        12,\n",
+        "        'order_id',\n",
+        "        'STRING',\n",
+        "        'INT',\n",
+        "        b_order_id,\n",
+        "        s_order_id,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(INT) + Filtro NOT NULL',\n",
+        "        'customer_id',\n",
+        "        'STRING',\n",
+        "        'INT',\n",
+        "        b_customer_id,\n",
+        "        s_customer_id,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(INT) + MD5 key',\n",
+        "        'order_date',\n",
+        "        'STRING',\n",
+        "        'DATE',\n",
+        "        b_order_date,\n",
+        "        s_order_date,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'TO_DATE(M/d/yyyy)',\n",
+        "        'product_category',\n",
+        "        'STRING',\n",
+        "        'STRING',\n",
+        "        b_product_category,\n",
+        "        s_product_category,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'TRIM',\n",
+        "        'region',\n",
+        "        'STRING',\n",
+        "        'STRING',\n",
+        "        b_region,\n",
+        "        s_region,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'TRIM',\n",
+        "        'payment_method',\n",
+        "        'STRING',\n",
+        "        'STRING',\n",
+        "        b_payment_method,\n",
+        "        s_payment_method,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'TRIM',\n",
+        "        'quantity',\n",
+        "        'STRING',\n",
+        "        'INT',\n",
+        "        b_quantity,\n",
+        "        s_quantity,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(INT) + CHECK > 0',\n",
+        "        'unit_price',\n",
+        "        'STRING',\n",
+        "        'DECIMAL(10,2)',\n",
+        "        b_unit_price,\n",
+        "        s_unit_price,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(DECIMAL)',\n",
+        "        'discount',\n",
+        "        'STRING',\n",
+        "        'DECIMAL(5,2)',\n",
+        "        b_discount,\n",
+        "        s_discount,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(DECIMAL)',\n",
+        "        'delivery_days',\n",
+        "        'STRING',\n",
+        "        'INT',\n",
+        "        b_delivery_days,\n",
+        "        s_delivery_days,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(INT)',\n",
+        "        'customer_rating',\n",
+        "        'STRING',\n",
+        "        'DOUBLE',\n",
+        "        b_customer_rating,\n",
+        "        s_customer_rating,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(DOUBLE)',\n",
+        "        'revenue',\n",
+        "        'STRING',\n",
+        "        'DECIMAL(10,2)',\n",
+        "        b_revenue,\n",
+        "        s_revenue,\n",
+        "        b_total,\n",
+        "        s_total,\n",
+        "        'CAST(DECIMAL) + CHECK >= 0'\n",
+        "      ) AS (\n",
+        "        column_name,\n",
+        "        bronze_type,\n",
+        "        silver_type,\n",
+        "        bronze_nulls,\n",
+        "        silver_nulls,\n",
+        "        bronze_total,\n",
+        "        silver_total,\n",
+        "        transformation\n",
+        "      )\n",
+        "    FROM\n",
+        "      combined\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  column_name"
+      ]
+    },
+    {
+      "name": "silver_analytics",
+      "displayName": "Ventas Silver (Datos Limpios)",
+      "config": {
+        "source": "workspace.ecommerce_silver.cleansed_sales",
+        "measures": [
+          {
+            "name": "total_revenue",
+            "expr": "SUM(revenue)",
+            "displayName": "Revenue Total",
+            "format": {
+              "type": "currency",
+              "currencyCode": "USD",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          },
+          {
+            "name": "total_quantity",
+            "expr": "SUM(quantity)",
+            "displayName": "Cantidad Total"
+          },
+          {
+            "name": "order_count",
+            "expr": "COUNT(*)",
+            "displayName": "Número de Órdenes"
+          },
+          {
+            "name": "avg_rating",
+            "expr": "AVG(customer_rating)",
+            "displayName": "Rating Promedio",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          },
+          {
+            "name": "avg_discount",
+            "expr": "AVG(discount)",
+            "displayName": "Descuento Promedio",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          }
+        ],
+        "version": "1.1",
+        "comment": "Metric view de ventas e-commerce capa Silver con datos limpios y tipados",
+        "dimensions": [
+          {
+            "name": "order_date",
+            "expr": "order_date",
+            "displayName": "Fecha de Orden"
+          },
+          {
+            "name": "product_category",
+            "expr": "product_category",
+            "displayName": "Categoría"
+          },
+          {
+            "name": "region",
+            "expr": "region",
+            "displayName": "Región"
+          },
+          {
+            "name": "payment_method",
+            "expr": "payment_method",
+            "displayName": "Método de Pago"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pipeline_flow",
+      "displayName": "Flujo del Pipeline Bronze-Silver-Gold",
+      "queryLines": [
+        "SELECT\n",
+        "  'Bronze (Raw)' AS layer,\n",
+        "  COUNT(*) AS total_rows,\n",
+        "  13 AS total_columns,\n",
+        "  'Todo STRING' AS data_types,\n",
+        "  'Sin constraints' AS constraints,\n",
+        "  'Datos crudos sin tipar ni validar' AS description\n",
+        "FROM\n",
+        "  workspace.ecommerce_bronze.raw_sales_analytics\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'Silver (Cleansed)',\n",
+        "  COUNT(*),\n",
+        "  14,\n",
+        "  'INT, DATE, DECIMAL, DOUBLE, STRING',\n",
+        "  'CHECK + NOT NULL + DISTINCT',\n",
+        "  'Tipado, TRIM, MD5 key, validaciones de rango'\n",
+        "FROM\n",
+        "  workspace.ecommerce_silver.cleansed_sales\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'Gold (Star Schema)',\n",
+        "  COUNT(*),\n",
+        "  5,\n",
+        "  'Optimizado para BI',\n",
+        "  'FKs a dim_date, dim_products',\n",
+        "  'Fact table + dimensiones para analytics'\n",
+        "FROM\n",
+        "  workspace.ecommerce_gold.fact_sales"
+      ]
+    },
+    {
+      "name": "error_detection",
+      "displayName": "Errores Detectados y Corregidos en Bronze",
+      "queryLines": [
+        "WITH bronze_errors AS (\n",
+        "  SELECT\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_id IS NOT NULL\n",
+        "          AND TRIM(order_id) != ''\n",
+        "          AND TRY_CAST(order_id AS INT) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_order_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_id IS NOT NULL\n",
+        "          AND TRIM(customer_id) != ''\n",
+        "          AND TRY_CAST(customer_id AS INT) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_customer_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          quantity IS NOT NULL\n",
+        "          AND TRIM(quantity) != ''\n",
+        "          AND TRY_CAST(quantity AS INT) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_quantity,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          unit_price IS NOT NULL\n",
+        "          AND TRIM(unit_price) != ''\n",
+        "          AND TRY_CAST(unit_price AS DECIMAL(10, 2)) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_unit_price,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          discount IS NOT NULL\n",
+        "          AND TRIM(discount) != ''\n",
+        "          AND TRY_CAST(discount AS DECIMAL(5, 2)) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_discount,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          delivery_days IS NOT NULL\n",
+        "          AND TRIM(delivery_days) != ''\n",
+        "          AND TRY_CAST(delivery_days AS INT) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_delivery_days,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_rating IS NOT NULL\n",
+        "          AND TRIM(customer_rating) != ''\n",
+        "          AND TRY_CAST(customer_rating AS DOUBLE) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_customer_rating,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          revenue IS NOT NULL\n",
+        "          AND TRIM(revenue) != ''\n",
+        "          AND TRY_CAST(revenue AS DECIMAL(10, 2)) IS NULL\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS type_revenue,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_date IS NOT NULL\n",
+        "          AND TRIM(order_date) != ''\n",
+        "          AND NOT rlike(TRIM(order_date), '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$')\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS date_format,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          quantity IS NOT NULL\n",
+        "          AND TRIM(quantity) != ''\n",
+        "          AND TRY_CAST(quantity AS INT) IS NOT NULL\n",
+        "          AND CAST(quantity AS INT) <= 0\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS range_quantity,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          revenue IS NOT NULL\n",
+        "          AND TRIM(revenue) != ''\n",
+        "          AND TRY_CAST(revenue AS DECIMAL(10, 2)) IS NOT NULL\n",
+        "          AND CAST(revenue AS DECIMAL(10, 2)) < 0\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS range_revenue,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_rating IS NOT NULL\n",
+        "          AND TRIM(customer_rating) != ''\n",
+        "          AND TRY_CAST(customer_rating AS DOUBLE) IS NOT NULL\n",
+        "          AND (\n",
+        "            CAST(customer_rating AS DOUBLE) < 1\n",
+        "            OR CAST(customer_rating AS DOUBLE) > 5\n",
+        "          )\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS range_rating,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          discount IS NOT NULL\n",
+        "          AND TRIM(discount) != ''\n",
+        "          AND TRY_CAST(discount AS DECIMAL(5, 2)) IS NOT NULL\n",
+        "          AND (\n",
+        "            CAST(discount AS DECIMAL(5, 2)) < 0\n",
+        "            OR CAST(discount AS DECIMAL(5, 2)) > 1\n",
+        "          )\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS range_discount,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          product_category IS NOT NULL\n",
+        "          AND product_category != TRIM(product_category)\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS space_category,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          region IS NOT NULL\n",
+        "          AND region != TRIM(region)\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS space_region,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          payment_method IS NOT NULL\n",
+        "          AND payment_method != TRIM(payment_method)\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS space_payment,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          order_id IS NULL\n",
+        "          OR TRIM(order_id) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS null_order_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          customer_id IS NULL\n",
+        "          OR TRIM(customer_id) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS null_customer_id,\n",
+        "    COUNT(\n",
+        "      CASE\n",
+        "        WHEN\n",
+        "          revenue IS NULL\n",
+        "          OR TRIM(revenue) = ''\n",
+        "        THEN\n",
+        "          1\n",
+        "      END\n",
+        "    ) AS null_revenue,\n",
+        "    COUNT(*) AS total_rows,\n",
+        "    COUNT(DISTINCT order_id) AS unique_order_ids\n",
+        "  FROM\n",
+        "    workspace.ecommerce_bronze.raw_sales_analytics\n",
+        ")\n",
+        "SELECT\n",
+        "  error_type,\n",
+        "  error_detail,\n",
+        "  error_count,\n",
+        "  correction_applied\n",
+        "FROM\n",
+        "  (\n",
+        "    SELECT\n",
+        "      stack(\n",
+        "        19,\n",
+        "        'Tipo de Dato',\n",
+        "        'order_id no casteable a INT',\n",
+        "        type_order_id,\n",
+        "        'CAST(INT)',\n",
+        "        'Tipo de Dato',\n",
+        "        'customer_id no casteable a INT',\n",
+        "        type_customer_id,\n",
+        "        'CAST(INT)',\n",
+        "        'Tipo de Dato',\n",
+        "        'quantity no casteable a INT',\n",
+        "        type_quantity,\n",
+        "        'CAST(INT) + CHECK > 0',\n",
+        "        'Tipo de Dato',\n",
+        "        'unit_price no casteable a DECIMAL',\n",
+        "        type_unit_price,\n",
+        "        'CAST(DECIMAL(10,2))',\n",
+        "        'Tipo de Dato',\n",
+        "        'discount no casteable a DECIMAL',\n",
+        "        type_discount,\n",
+        "        'CAST(DECIMAL(5,2))',\n",
+        "        'Tipo de Dato',\n",
+        "        'delivery_days no casteable a INT',\n",
+        "        type_delivery_days,\n",
+        "        'CAST(INT)',\n",
+        "        'Tipo de Dato',\n",
+        "        'customer_rating no casteable a DOUBLE',\n",
+        "        type_customer_rating,\n",
+        "        'CAST(DOUBLE)',\n",
+        "        'Tipo de Dato',\n",
+        "        'revenue no casteable a DECIMAL',\n",
+        "        type_revenue,\n",
+        "        'CAST(DECIMAL(10,2)) + CHECK >= 0',\n",
+        "        'Formato de Fecha',\n",
+        "        'order_date no cumple M/d/yyyy',\n",
+        "        date_format,\n",
+        "        'TO_DATE(M/d/yyyy)',\n",
+        "        'Violacion de Rango',\n",
+        "        'quantity <= 0',\n",
+        "        range_quantity,\n",
+        "        'CHECK > 0',\n",
+        "        'Violacion de Rango',\n",
+        "        'revenue < 0',\n",
+        "        range_revenue,\n",
+        "        'CHECK >= 0',\n",
+        "        'Violacion de Rango',\n",
+        "        'rating fuera de 1-5',\n",
+        "        range_rating,\n",
+        "        'Validacion de rango',\n",
+        "        'Violacion de Rango',\n",
+        "        'discount fuera de 0-1',\n",
+        "        range_discount,\n",
+        "        'Validacion de rango',\n",
+        "        'Espacios en Blanco',\n",
+        "        'product_category con espacios',\n",
+        "        space_category,\n",
+        "        'TRIM',\n",
+        "        'Espacios en Blanco',\n",
+        "        'region con espacios',\n",
+        "        space_region,\n",
+        "        'TRIM',\n",
+        "        'Espacios en Blanco',\n",
+        "        'payment_method con espacios',\n",
+        "        space_payment,\n",
+        "        'TRIM',\n",
+        "        'Valores Nulos',\n",
+        "        'order_id NULL o vacio',\n",
+        "        null_order_id,\n",
+        "        'Filtro NOT NULL',\n",
+        "        'Valores Nulos',\n",
+        "        'customer_id NULL o vacio',\n",
+        "        null_customer_id,\n",
+        "        'Sin correccion (permite NULL)',\n",
+        "        'Duplicados',\n",
+        "        'order_id duplicados',\n",
+        "        total_rows - unique_order_ids,\n",
+        "        'SELECT DISTINCT'\n",
+        "      ) AS (error_type, error_detail, error_count, correction_applied)\n",
+        "    FROM\n",
+        "      bronze_errors\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  error_count DESC"
+      ]
+    },
+    {
+      "name": "gold_analytics",
+      "displayName": "Analytics Gold (Star Schema)",
+      "config": {
+        "source": "workspace.ecommerce_gold.fact_sales",
+        "measures": [
+          {
+            "name": "gold_revenue",
+            "expr": "SUM(source.revenue)",
+            "displayName": "Revenue Gold",
+            "format": {
+              "type": "currency",
+              "currencyCode": "USD",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          },
+          {
+            "name": "gold_order_count",
+            "expr": "COUNT(*)",
+            "displayName": "Total Órdenes Gold"
+          }
+        ],
+        "version": "1.1",
+        "comment": "Metric view desde la capa Gold - fact_sales + dim_date del star schema e-commerce",
+        "dimensions": [
+          {
+            "name": "product_category",
+            "expr": "source.product_category",
+            "displayName": "Categoría"
+          },
+          {
+            "name": "order_date",
+            "expr": "source.order_date",
+            "displayName": "Fecha de Orden"
+          },
+          {
+            "name": "quarter",
+            "expr": "dim_date.quarter",
+            "displayName": "Trimestre"
+          },
+          {
+            "name": "month_name",
+            "expr": "dim_date.month_name",
+            "displayName": "Mes"
+          },
+          {
+            "name": "day_name",
+            "expr": "dim_date.day_name",
+            "displayName": "Día de la Semana"
+          }
+        ],
+        "joins": [
+          {
+            "name": "dim_date",
+            "source": "workspace.ecommerce_gold.dim_date",
+            "on": "source.order_date = dim_date.order_date"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gold_reconciliation",
+      "displayName": "Reconciliación Silver vs Gold",
+      "queryLines": [
+        "SELECT\n",
+        "  (\n",
+        "    SELECT\n",
+        "      COUNT(*)\n",
+        "    FROM\n",
+        "      workspace.ecommerce_silver.cleansed_sales\n",
+        "  ) AS silver_records,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      COUNT(*)\n",
+        "    FROM\n",
+        "      workspace.ecommerce_gold.fact_sales\n",
+        "  ) AS gold_records,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      ROUND(SUM(revenue), 2)\n",
+        "    FROM\n",
+        "      workspace.ecommerce_silver.cleansed_sales\n",
+        "  ) AS silver_revenue,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      ROUND(SUM(revenue), 2)\n",
+        "    FROM\n",
+        "      workspace.ecommerce_gold.fact_sales\n",
+        "  ) AS gold_revenue,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      COUNT(*)\n",
+        "    FROM\n",
+        "      workspace.ecommerce_silver.cleansed_sales\n",
+        "  )\n",
+        "    - (\n",
+        "      SELECT\n",
+        "        COUNT(*)\n",
+        "      FROM\n",
+        "        workspace.ecommerce_gold.fact_sales\n",
+        "    ) AS record_diff,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      ROUND(SUM(revenue), 2)\n",
+        "    FROM\n",
+        "      workspace.ecommerce_silver.cleansed_sales\n",
+        "  )\n",
+        "    - (\n",
+        "      SELECT\n",
+        "        ROUND(SUM(revenue), 2)\n",
+        "      FROM\n",
+        "        workspace.ecommerce_gold.fact_sales\n",
+        "    ) AS revenue_diff"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "5a5e0d66",
+      "displayName": "Bronze → Silver → Gold",
+      "layout": [
+        {
+          "widget": {
+            "name": "dashboard_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## 📊 Calidad de Datos E-commerce — Bronze, Silver y Gold\n",
+                "\n",
+                "### Arquitectura Completa: Limpieza, Integridad, Agregaciones y Star Schema\n",
+                "\n",
+                "Este dashboard cubre las tres capas del pipeline de datos e-commerce:\n",
+                "\n",
+                "- **Bronze** — Datos crudos, todo STRING, sin constraints\n",
+                "- **Silver** — Datos limpios, tipados y validados (CAST, TRIM, CHECK, NOT NULL)\n",
+                "- **Gold** — Star schema optimizado para BI (`fact_sales` + `dim_date` + `dim_products`)\n",
+                "\n",
+                "La reconciliación Silver vs Gold confirma **zero-loss**: la capa Gold preserva todos los registros y el revenue total."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_bronze_total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "quality_overview",
+                  "fields": [
+                    {
+                      "name": "sum(bronze_total)",
+                      "expression": "SUM(`bronze_total`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Registros Bronze"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(bronze_total)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_silver_total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "quality_overview",
+                  "fields": [
+                    {
+                      "name": "sum(silver_total)",
+                      "expression": "SUM(`silver_total`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Registros Silver"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(silver_total)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_retention_pct",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "quality_overview",
+                  "fields": [
+                    {
+                      "name": "sum(retention_pct)",
+                      "expression": "SUM(`retention_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "% Retención",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(retention_pct)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_nulls_by_column",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "nulls_comparison",
+                  "fields": [
+                    {
+                      "name": "layer",
+                      "expression": "`layer`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "sum(null_count)",
+                      "expression": "SUM(`null_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Nulos por Columna: Bronze vs Silver"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "column_name",
+                  "displayName": "column_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(null_count)",
+                  "displayName": "null_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "layer",
+                  "displayName": "layer",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 5,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "table_column_quality",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_quality_detail",
+                  "fields": [
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "bronze_type",
+                      "expression": "`bronze_type`"
+                    },
+                    {
+                      "name": "silver_type",
+                      "expression": "`silver_type`"
+                    },
+                    {
+                      "name": "bronze_nulls",
+                      "expression": "`bronze_nulls`"
+                    },
+                    {
+                      "name": "silver_nulls",
+                      "expression": "`silver_nulls`"
+                    },
+                    {
+                      "name": "bronze_completeness",
+                      "expression": "`bronze_completeness`"
+                    },
+                    {
+                      "name": "silver_completeness",
+                      "expression": "`silver_completeness`"
+                    },
+                    {
+                      "name": "transformation",
+                      "expression": "`transformation`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Detalle de Calidad por Columna",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "column_name"
+                  },
+                  {
+                    "fieldName": "bronze_type"
+                  },
+                  {
+                    "fieldName": "silver_type"
+                  },
+                  {
+                    "fieldName": "bronze_nulls"
+                  },
+                  {
+                    "fieldName": "silver_nulls"
+                  },
+                  {
+                    "fieldName": "bronze_completeness"
+                  },
+                  {
+                    "fieldName": "silver_completeness"
+                  },
+                  {
+                    "fieldName": "transformation"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 4,
+            "width": 7,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_gold_orders",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_analytics",
+                  "fields": [
+                    {
+                      "name": "measure(gold_order_count)",
+                      "expression": "MEASURE(`gold_order_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Órdenes Gold"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(gold_order_count)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_gold_category",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_analytics",
+                  "fields": [
+                    {
+                      "name": "product_category",
+                      "expression": "`product_category`"
+                    },
+                    {
+                      "name": "measure(gold_revenue)",
+                      "expression": "MEASURE(`gold_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Revenue Gold por Categoría",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "product_category",
+                  "displayName": "product_category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(gold_revenue)",
+                  "displayName": "gold_revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "product_category",
+                  "displayName": "product_category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 7,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "line_gold_monthly",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_analytics",
+                  "fields": [
+                    {
+                      "name": "monthly(order_date)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `order_date`)"
+                    },
+                    {
+                      "name": "measure(gold_revenue)",
+                      "expression": "MEASURE(`gold_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Revenue Gold Mensual"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(order_date)",
+                  "displayName": "Month",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(gold_revenue)",
+                  "displayName": "gold_revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "table_pipeline_flow",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "pipeline_flow",
+                  "fields": [
+                    {
+                      "name": "layer",
+                      "expression": "`layer`"
+                    },
+                    {
+                      "name": "total_rows",
+                      "expression": "`total_rows`"
+                    },
+                    {
+                      "name": "total_columns",
+                      "expression": "`total_columns`"
+                    },
+                    {
+                      "name": "data_types",
+                      "expression": "`data_types`"
+                    },
+                    {
+                      "name": "constraints",
+                      "expression": "`constraints`"
+                    },
+                    {
+                      "name": "description",
+                      "expression": "`description`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Flujo del Pipeline: Bronze → Silver → Gold",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "layer"
+                  },
+                  {
+                    "fieldName": "total_rows"
+                  },
+                  {
+                    "fieldName": "total_columns"
+                  },
+                  {
+                    "fieldName": "data_types"
+                  },
+                  {
+                    "fieldName": "constraints"
+                  },
+                  {
+                    "fieldName": "description"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 6,
+            "height": 4
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
